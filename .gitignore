@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.dvc/cache/
+.dvc/tmp/
+.dvc-storage/
+data/raw/*
+!data/raw/.gitkeep
+artifacts/*
+!artifacts/.gitkeep
+.env
+airflow.cfg
+airflow.db
+logs/

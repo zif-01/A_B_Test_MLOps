@@ -1,0 +1,3 @@
+experiment_id=demo_conversion
+status=completed
+message=Analysis completed; review the report.

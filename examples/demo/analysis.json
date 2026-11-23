@@ -1,0 +1,166 @@
+{
+  "metrics": [
+    {
+      "ci_high": 0.05796923970524874,
+      "ci_low": 0.0036974269614179663,
+      "difference": 0.03083333333333335,
+      "mean_control": 0.1175,
+      "mean_treatment": 0.14833333333333334,
+      "n_control": 1200,
+      "n_treatment": 1200,
+      "name": "conversion",
+      "p_value": 0.026099832880913047,
+      "role": "primary",
+      "significant": true,
+      "test": "two_proportion_z_test"
+    },
+    {
+      "ci_high": 1.0600060658917956,
+      "ci_low": -0.1773505589389145,
+      "difference": 0.4413277534764406,
+      "mean_control": 2.1345160991978003,
+      "mean_treatment": 2.575843852674241,
+      "n_control": 1200,
+      "n_treatment": 1200,
+      "name": "revenue",
+      "p_value": 0.16199418119743683,
+      "role": "guardrail",
+      "significant": false,
+      "test": "welch_t_test"
+    }
+  ],
+  "precision": {
+    "control_rate": 0.1175,
+    "estimated_mde": 0.037535959243379824,
+    "method": "normal_approximation_two_sided",
+    "n_per_group": 1200,
+    "planned_mde": 0.03,
+    "power_at_planned_mde": 0.620299581092323,
+    "target_power": 0.8
+  },
+  "reason": null,
+  "srm": {
+    "alpha": 0.001,
+    "expected": {
+      "control": 1200.0,
+      "treatment": 1200.0
+    },
+    "observed": {
+      "control": 1200,
+      "treatment": 1200
+    },
+    "p_value": 1.0,
+    "passed": true,
+    "statistic": 0.0
+  },
+  "status": "completed",
+  "subgroups": [
+    {
+      "ci_high": 0.033924236843574665,
+      "ci_low": -0.10700059188714285,
+      "difference": -0.03653817752178409,
+      "mean_control": 0.15675675675675677,
+      "mean_treatment": 0.12021857923497267,
+      "metric": "conversion",
+      "n_control": 185,
+      "n_treatment": 183,
+      "p_adjusted": 0.3104384484040392,
+      "p_value": 0.3104384484040392,
+      "significant": false,
+      "significant_adjusted": false,
+      "subgroup": "country",
+      "test": "two_proportion_z_test",
+      "value": "CA"
+    },
+    {
+      "ci_high": 1.185717494397882,
+      "ci_low": -1.6419707648961124,
+      "difference": -0.22812663524911514,
+      "mean_control": 2.2857435209592096,
+      "mean_treatment": 2.0576168857100945,
+      "metric": "revenue",
+      "n_control": 185,
+      "n_treatment": 183,
+      "p_adjusted": 0.9343323790405644,
+      "p_value": 0.7511788739923403,
+      "significant": false,
+      "significant_adjusted": false,
+      "subgroup": "country",
+      "test": "welch_t_test",
+      "value": "CA"
+    },
+    {
+      "ci_high": 0.10568204295799702,
+      "ci_low": -0.0002787896307304971,
+      "difference": 0.05270162666363326,
+      "mean_control": 0.09830508474576272,
+      "mean_treatment": 0.15100671140939598,
+      "metric": "conversion",
+      "n_control": 295,
+      "n_treatment": 298,
+      "p_adjusted": 0.10435894832542095,
+      "p_value": 0.052179474162710474,
+      "significant": false,
+      "significant_adjusted": false,
+      "subgroup": "country",
+      "test": "two_proportion_z_test",
+      "value": "GB"
+    },
+    {
+      "ci_high": 1.9918528738528218,
+      "ci_low": -0.9149982675429778,
+      "difference": 0.538427303154922,
+      "mean_control": 2.394162737111062,
+      "mean_treatment": 2.932590040265984,
+      "metric": "revenue",
+      "n_control": 295,
+      "n_treatment": 298,
+      "p_adjusted": 0.9343323790405644,
+      "p_value": 0.4671661895202822,
+      "significant": false,
+      "significant_adjusted": false,
+      "subgroup": "country",
+      "test": "welch_t_test",
+      "value": "GB"
+    },
+    {
+      "ci_high": 0.07434013289626781,
+      "ci_low": 0.0038664812282878935,
+      "difference": 0.03910330706227785,
+      "mean_control": 0.11527777777777778,
+      "mean_treatment": 0.15438108484005564,
+      "metric": "conversion",
+      "n_control": 720,
+      "n_treatment": 719,
+      "p_adjusted": 0.08964711716609813,
+      "p_value": 0.029882372388699376,
+      "significant": true,
+      "significant_adjusted": false,
+      "subgroup": "country",
+      "test": "two_proportion_z_test",
+      "value": "US"
+    },
+    {
+      "ci_high": 1.3314260399369626,
+      "ci_low": -0.19020930288943871,
+      "difference": 0.570608368523762,
+      "mean_control": 1.9892760558501992,
+      "mean_treatment": 2.559884424373961,
+      "metric": "revenue",
+      "n_control": 720,
+      "n_treatment": 719,
+      "p_adjusted": 0.424365563417765,
+      "p_value": 0.14145518780592167,
+      "significant": false,
+      "significant_adjusted": false,
+      "subgroup": "country",
+      "test": "welch_t_test",
+      "value": "US"
+    }
+  ],
+  "validation": {
+    "errors": [],
+    "passed": true,
+    "rows": 2400
+  }
+}

@@ -1,0 +1,24 @@
+stages:
+  generate:
+    cmd: uv run ab-test generate --config configs/default.yaml --output data/raw/experiment.csv
+    deps:
+      - configs/default.yaml
+      - pyproject.toml
+      - uv.lock
+      - src/ab_test_pipeline/data.py
+    outs:
+      - data/raw/experiment.csv
+  analyze:
+    cmd: uv run ab-test run --config configs/default.yaml --input data/raw/experiment.csv --output-dir artifacts/current
+    deps:
+      - configs/default.yaml
+      - pyproject.toml
+      - uv.lock
+      - data/raw/experiment.csv
+      - src/ab_test_pipeline/data.py
+      - src/ab_test_pipeline/analysis.py
+      - src/ab_test_pipeline/__init__.py
+      - src/ab_test_pipeline/reporting.py
+      - src/ab_test_pipeline/cli.py
+    outs:
+      - artifacts/current

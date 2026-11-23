@@ -1,0 +1,20 @@
+services:
+  airflow:
+    build: .
+    command: standalone
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+      AB_TEST_SCHEDULE: ${AB_TEST_SCHEDULE:-}
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags:ro
+      - ./configs:/opt/airflow/project/configs:ro
+      - ./data:/opt/airflow/project/data
+      - ./artifacts:/opt/airflow/project/artifacts
+    healthcheck:
+      test: ["CMD", "bash", "-c", "airflow jobs check --job-type SchedulerJob --hostname \"$${HOSTNAME}\""]
+      interval: 30s
+      timeout: 10s
+      retries: 5

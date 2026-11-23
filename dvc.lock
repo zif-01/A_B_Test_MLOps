@@ -1,0 +1,73 @@
+schema: '2.0'
+stages:
+  generate:
+    cmd: uv run ab-test generate --config configs/default.yaml --output 
+      data/raw/experiment.csv
+    deps:
+    - path: configs/default.yaml
+      hash: md5
+      md5: 5c58ae66d5d4415b6e4aa2a02746ee57
+      size: 570
+    - path: pyproject.toml
+      hash: md5
+      md5: 019e6527be2ed23ffc51cf14b2a41d75
+      size: 589
+    - path: src/ab_test_pipeline/data.py
+      hash: md5
+      md5: 762e47138d6dc34526cf9558ec81d5c9
+      size: 2045
+    - path: uv.lock
+      hash: md5
+      md5: 9b2370340a504e2f7fa237ac52dfa4c1
+      size: 616481
+    outs:
+    - path: data/raw/experiment.csv
+      hash: md5
+      md5: e10085db483572bfa1fed1cbfd7448e2
+      size: 76659
+  analyze:
+    cmd: uv run ab-test run --config configs/default.yaml --input 
+      data/raw/experiment.csv --output-dir artifacts/current
+    deps:
+    - path: configs/default.yaml
+      hash: md5
+      md5: 5c58ae66d5d4415b6e4aa2a02746ee57
+      size: 570
+    - path: data/raw/experiment.csv
+      hash: md5
+      md5: e10085db483572bfa1fed1cbfd7448e2
+      size: 76659
+    - path: pyproject.toml
+      hash: md5
+      md5: 019e6527be2ed23ffc51cf14b2a41d75
+      size: 589
+    - path: src/ab_test_pipeline/__init__.py
+      hash: md5
+      md5: cbe14d790ee38e464e2afbeb1a114255
+      size: 61
+    - path: src/ab_test_pipeline/analysis.py
+      hash: md5
+      md5: 9b6afab0f83537b51a2640365fba2eb9
+      size: 13469
+    - path: src/ab_test_pipeline/cli.py
+      hash: md5
+      md5: 975d22f2f3e5a791e546fbaa82d60315
+      size: 3202
+    - path: src/ab_test_pipeline/data.py
+      hash: md5
+      md5: 762e47138d6dc34526cf9558ec81d5c9
+      size: 2045
+    - path: src/ab_test_pipeline/reporting.py
+      hash: md5
+      md5: 69ddb6d2751c86ff12e7aee085daeee4
+      size: 6226
+    - path: uv.lock
+      hash: md5
+      md5: 9b2370340a504e2f7fa237ac52dfa4c1
+      size: 616481
+    outs:
+    - path: artifacts/current
+      hash: md5
+      md5: a2c703fad4ca148f2cc9b47cf15251bf.dir
+      size: 7017
+      nfiles: 4

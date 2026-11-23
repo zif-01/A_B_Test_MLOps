@@ -1,0 +1,10 @@
+{
+  "config_sha256": "15996ca97307f9a9800420e630e40eef90b2e99f49df8c3bcf75fe7a0b5c3279",
+  "created_at_utc": "2026-11-17T04:50:54.587227+00:00",
+  "experiment_id": "demo_conversion",
+  "git_commit": "506f42c1e720204a2744c6b20f55f40283b7b8f3",
+  "git_worktree_dirty": true,
+  "input_sha256": "6eb267fb1d7550b521a2434921b222106f73ef46749f479a2fd71d77d8f2f9ca",
+  "package_version": "0.1.0",
+  "seed": 41
+}

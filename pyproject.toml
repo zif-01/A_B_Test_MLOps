@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ab-test-mlops"
+version = "0.1.0"
+description = "Reproducible A/B test analysis pipeline"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "PyYAML>=6.0",
+  "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+dev = [
+  "dvc>=3.50",
+  "pytest>=8.0",
+]
+
+[project.scripts]
+ab-test = "ab_test_pipeline.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ab_test_pipeline"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

@@ -1,0 +1,9 @@
+.git
+.venv
+.dvc
+.dvc-storage
+.pytest_cache
+__pycache__
+data
+artifacts
+.env
