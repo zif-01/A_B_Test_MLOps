@@ -1,71 +1,74 @@
-# Reproducible A/B-test analysis pipeline
+# Воспроизводимый пайплайн анализа A/B-теста
 
-This project turns the analysis from
-[A_B_Test_showcase](https://github.com/zif-01/A_B_Test_showcase) into a
-reproducible pipeline. It automates experiment-data checks, SRM detection,
-metric and statistical analysis, subgroup analysis, reporting, and a local
-file-based alert. It does **not** retrain a model: an ordinary A/B test has no
-model to retrain.
+Этот проект превращает анализ из
+[A_B_Test_showcase](https://github.com/zif-01/A_B_Test_showcase) в
+воспроизводимый пайплайн. Он автоматизирует проверки данных эксперимента,
+обнаружение SRM (Sample Ratio Mismatch — несоответствие соотношения выборок),
+анализ метрик и статистики, анализ подгрупп, составление отчётов и локальное
+файловое оповещение. Проект **не переобучает модель**: в обычном A/B-тесте нет
+модели, которую нужно переобучать.
 
-The MVP uses synthetic data, Python, DVC with a local remote, and a Dockerized
-Airflow instance. The analysis can also run directly from the CLI without
-Airflow.
+MVP использует синтетические данные, Python, DVC с локальным remote и
+контейнеризированный экземпляр Airflow (Docker). Анализ также можно запускать
+напрямую из CLI без Airflow.
 
-## Requirements
+## Требования
 
-- Docker and Docker Compose
-- Python 3.11+ and [uv](https://docs.astral.sh/uv/) for local development
-- DVC for data versioning (`uv run dvc ...`)
+- Docker и Docker Compose
+- Python 3.11+ и [uv](https://docs.astral.sh/uv/) для локальной разработки
+- DVC для версионирования данных (`uv run dvc ...`)
 
-## Run from scratch
+## Запуск с нуля
 
 ```bash
 uv sync --extra dev
 ```
 
-The local DVC remote is preconfigured in `.dvc/config` as `../.dvc-storage`,
-outside the Git repository. Reproduce the workflow and optionally push its
-cached data and reports to that local remote:
+Локальный DVC-remote предварительно настроен в `.dvc/config` как `../.dvc-storage`,
+вне Git-репозитория. Воспроизведите workflow и при необходимости отправьте его
+кэшированные данные и отчёты в этот локальный remote:
 
 ```bash
 uv run dvc repro
 uv run dvc push
 ```
 
-For a direct CLI run without DVC, generate and analyze the data explicitly:
+Для прямого запуска через CLI без DVC явно сгенерируйте данные и запустите анализ:
 
 ```bash
 uv run ab-test generate --config configs/default.yaml --output data/raw/experiment.csv
 uv run ab-test run --config configs/default.yaml --input data/raw/experiment.csv --output-dir artifacts/current
 ```
 
-The analysis command writes `analysis.json`, `report.md`, `manifest.json`, and
-`alert.txt` under `artifacts/current`. A non-zero exit code means that a data
-quality or SRM gate failed; the diagnostic artifacts are still written.
+Команда анализа записывает `analysis.json`, `report.md`, `manifest.json` и
+`alert.txt` в `artifacts/current`. Ненулевой код возврата означает, что не пройден
+порог качества данных или SRM; диагностические артефакты при этом всё равно
+записываются.
 
-The default DVC remote is local. For a shared team setup, configure an
-S3-compatible remote using DVC's standard remote configuration. Keep any
-credentials outside Git.
+DVC-remote по умолчанию — локальный. Для командной работы настройте
+S3-совместимый remote стандартными средствами конфигурации remote в DVC.
+Не храните учётные данные в Git.
 
-## Airflow in Docker
+## Airflow в Docker
 
-Generate the input file first, then start Airflow:
+Сначала сгенерируйте входной файл, затем запустите Airflow:
 
 ```bash
 uv run ab-test generate --config configs/default.yaml --output data/raw/experiment.csv
 docker compose up --build
 ```
 
-Open [http://localhost:8080](http://localhost:8080). Airflow Standalone creates
-a local admin account and prints the credentials in its container logs:
+Откройте [http://localhost:8080](http://localhost:8080). Airflow Standalone создаёт
+локальную учётную запись администратора и печатает учётные данные в логах
+контейнера:
 
 ```bash
 docker compose logs airflow
 ```
 
-Trigger the `ab_test_analysis` DAG manually. The default experiment config and
-CSV are mounted into the container. A DAG run can override `experiment_id` or
-`input_path` with its JSON configuration, for example:
+Запустите DAG `ab_test_analysis` вручную. Конфиг эксперимента по умолчанию и
+CSV монтируются в контейнер. Запуск DAG может переопределить `experiment_id` или
+`input_path` через свою JSON-конфигурацию, например:
 
 ```json
 {
@@ -74,42 +77,43 @@ CSV are mounted into the container. A DAG run can override `experiment_id` or
 }
 ```
 
-The DAG writes a run-specific folder under `artifacts/airflow/`. A producer
-that detects a new file can trigger the Airflow DAG through its API and pass
-that file's mounted path as `input_path`. To enable periodic runs, set
-`AB_TEST_SCHEDULE` in the shell or an ignored `.env` file to a cron expression
-(for example, `0 8 * * *`) and ensure the input file is refreshed before each
-scheduled run.
-For unattended deployments, configure Airflow authentication and networking
-before exposing its webserver.
+DAG записывает папку, специфичную для запуска, в `artifacts/airflow/`. Продюсер,
+который обнаруживает новый файл, может запустить DAG Airflow через его API и
+передать смонтированный путь к этому файлу как `input_path`. Чтобы включить
+периодические запуски, задайте `AB_TEST_SCHEDULE` в оболочке или в игнорируемом
+`.env`-файле как cron-выражение (например, `0 8 * * *`) и обеспечьте обновление
+входного файла перед каждым запланированным запуском.
+Для необслуживаемых развёртываний настройте аутентификацию Airflow и сетевой
+доступ, прежде чем открывать его веб-сервер.
 
-Expected data-quality or SRM anomalies produce a report and alert before the
-DAG is marked failed. Unexpected task failures are reported by the final alert
-task when Airflow can still execute it.
+Ожидаемые аномалии качества данных или SRM формируют отчёт и оповещение до того,
+как DAG будет помечен как failed. Непредвиденные сбои задач сообщаются финальной
+задачей оповещения, когда Airflow ещё может её выполнить.
 
-## Data contract and analysis
+## Контракт данных и анализ
 
-Each row represents one randomized unit. Required columns:
+Каждая строка представляет одну рандомизированную единицу. Обязательные столбцы:
 
-- `user_id`: unique, non-empty assignment unit
-- `variant`: configured control or treatment group
-- configured metric columns: numeric and non-null
-- configured subgroup columns: non-null categorical values
+- `user_id`: уникальная непустая единица назначения
+- `variant`: настроенная контрольная или тестовая группа
+- настроенные столбцы метрик: числовые и непустые
+- настроенные столбцы подгрупп: непустые категориальные значения
 
-The default configuration includes a binary conversion primary metric and a
-continuous revenue guardrail. Binary metrics use a two-proportion z-test and
-an unpooled normal confidence interval; continuous metrics use Welch's t-test
-and a Welch confidence interval. Subgroup p-values are adjusted with the
-configured Holm procedure.
+Конфигурация по умолчанию включает бинарную основную метрику конверсии и
+непрерывную guardrail-метрику revenue. Для бинарных метрик используется z-тест
+для двух долей и необъединённый (unpooled) нормальный доверительный интервал;
+для непрерывных — t-тест Уэлча и доверительный интервал Уэлча. p-значения
+подгрупп корректируются настроенной процедурой Холма.
 
-The pipeline checks the sample ratio before inferential analysis. If SRM fails,
-it records the group counts and p-value and does not present treatment tests as
-reliable. MDE is reported as an approximate detectable absolute difference for
-the observed control rate and sample size. Power at the configured planned MDE
-is also reported as a planning diagnostic, not as evidence that a null result
-means no effect.
+Пайплайн проверяет соотношение выборок (SRM) до вывода статистических
+заключений. Если SRM не пройден, он фиксирует размеры групп и p-значение и не
+представляет тесты между группами treatment как надёжные. MDE сообщается как
+приблизительная обнаруживаемая абсолютная разница для наблюдаемой контрольной
+конверсии и размера выборки. Мощность при настроенном планируемом MDE также
+сообщается как диагностика для планирования, а не как доказательство того, что
+незначимый результат означает отсутствие эффекта.
 
-## Tests and development
+## Тесты и разработка
 
 ```bash
 uv run pytest
@@ -117,29 +121,32 @@ uv run ab-test generate --config configs/default.yaml --output data/raw/experime
 uv run ab-test run --config configs/default.yaml --input data/raw/experiment.csv --output-dir artifacts/current
 ```
 
-The test suite covers validation, SRM gating, metric calculations, subgroup
-adjustment, and repeatability of the synthetic generator. The report manifest
-records the input and config SHA-256 hashes, seed, package version, Git commit
-when available, and whether the Git worktree was dirty. DVC records dataset
-and pipeline-output hashes in its lockfile; commit that lockfile alongside the
-code. Compare metric definitions and inputs with the notebook in
-`A_B_Test_showcase` before interpreting a numeric comparison; this MVP does
-not bundle or assume access to that repository's data.
+Тестовый набор покрывает валидацию, гейтинг по SRM, вычисление метрик,
+корректировку подгрупп и повторяемость синтетического генератора. Манифест
+отчёта фиксирует SHA-256-хеши входных данных и конфигурации, seed, версию
+пакета, Git-коммит (если доступен) и признак изменённости рабочего дерева Git.
+DVC записывает хеши датасета и выходных данных пайплайна в свой lock-файл;
+коммитьте этот lock-файл вместе с кодом. Перед интерпретацией числового
+сравнения сверьте определения метрик и входные данные с ноутбуком в
+`A_B_Test_showcase`; этот MVP не включает данные того репозитория и не
+предполагает доступа к ним.
 
-An example report, analysis result, manifest, and alert generated from the
-synthetic dataset are included under `examples/demo/`.
+Пример отчёта, результата анализа, манифеста и оповещения, сгенерированных из
+синтетического датасета, находится в `examples/demo/`.
 
-The DVC-managed CLI workflow versions its input and canonical outputs through
-`dvc.lock`. Airflow keeps each run's outputs in a separate local folder and
-records input/config hashes in its manifest; the local DVC remote can be used
-to archive those folders as a follow-up operational step.
+CLI-workflow под управлением DVC версионирует входные данные и канонические
+выходы через `dvc.lock`. Airflow сохраняет выходные данные каждого запуска в
+отдельной локальной папке и записывает хеши входных данных и конфигурации в свой
+манифест; локальный DVC-remote можно использовать для архивирования этих папок
+в качестве последующего операционного шага.
 
-## Scope and next steps
+## Границы и следующие шаги
 
-- No model retraining is part of the A/B-analysis path.
-- No Kaggle dataset or API key is needed. If a downloader is added later, keep
-  the token in an environment variable or an ignored local config and never
-  commit downloaded data or credentials.
-- PySpark is intentionally not used for the demo-sized data. Consider it if
-  data volume or compute time outgrows a single-machine pandas workflow.
-- Final metric selection and business recommendations remain human decisions.
+- Переобучение модели не входит в путь анализа A/B-теста.
+- Датасет Kaggle или API-ключ не требуются. Если позже будет добавлен загрузчик,
+  храните токен в переменной окружения или в игнорируемом локальном конфиге и
+  никогда не коммитьте загруженные данные или учётные данные.
+- PySpark намеренно не используется для данных демо-размера. Рассмотрите его,
+  если объём данных или время вычислений перестанут укладываться в workflow
+  pandas на одной машине.
+- Окончательный выбор метрик и бизнес-рекомендации остаются за людьми.
